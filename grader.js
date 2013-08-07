@@ -30,14 +30,14 @@ var URL_DEFAULT = "http://fierce-reaches-1073.herokuapp.com";
 var rest = require('restler');
 var util = require('util');
 
-var buildfn = function() {
+var buildfn = function(htmlfile,funcres) {
     var response2console = function(result, response) {
         if (result instanceof Error) {
             console.error('Error: ' + util.format(response.message));
         } else {
-            fs.writeFileSync(HTMLFILE_DEFAULT, result);
-
-        }
+            fs.writeFileSync(htmlfile, result);
+            funcres = result;
+       }
     };
     return response2console;
 };
@@ -48,10 +48,7 @@ var assertValidUrl = function(url) {
         return true;
     }
     return false;
- //   var response2console = buildfn();
- //   var funcres = rest.get(url).on('complete', response2console);
-                                                                           
- //    return funcres;
+                                                                  
 }
 
 var assertInfileExists = function(infile) {
@@ -83,15 +80,17 @@ var loadChecks = function(checksfile) {
 
 var checkHtmlFile = function(htmlfile, htmlurl,checksfile) {
   var out = {};
-
+  var funcres = "";
     if (assertInfileExists(htmlfile)) { 
        $ = cheerioHtmlFile(htmlfile);
        console.log("%s == htmlfile ", htmlfile);
     } else if (assertValidUrl(htmlurl)) {
-       var response2console = buildfn();
-        rest.get(htmlurl).on('complete', response2console);
+       var response2console = buildfn(HTMLFILE_DEFAULT,funcres);
+        rest.get(htmlurl).on('complete',response2console);
 //        console.log("result %s, response %s",util.format(result),response);
-        $ = cheerioHtmlFile(HTMLFILE_DEFAULT);
+//         response2console;
+//        $ = cheerioHtmlFile(HTMLFILE_DEFAULT);
+          $ = cheerioHtmlUrl(funcres);         
 //        console.log("%s = url   %s = response ", htmlurl,result );
     } else {
        console.error("%s does not exist. ", htmlfile);
